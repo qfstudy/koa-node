@@ -1,6 +1,15 @@
 const mongoose = require('mongoose')
 const db = "mongodb://localhost/myDb"
-mongoose.Promise = global.Promise
+
+const glob = require('glob')
+const {resolve} = require('path')
+
+exports.initSchemas = () =>{
+  glob.sync(resolve(__dirname,'./schema/','**/*.js')).forEach(require)
+}
+
+
+// mongoose.Promise = global.Promise
 exports.connect = () => {
   //连接数据库
   mongoose.connect(db)
