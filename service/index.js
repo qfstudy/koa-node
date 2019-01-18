@@ -1,15 +1,26 @@
+const Router = require('koa-router')
+
 const Koa = require('koa')
 const app = new Koa()
 
-// const {connect} = require('./database/init.js')
-const mongoose = require('mongoose')
-const {
-  connect,
-  initSchemas
-} = require('./database/init.js')
+let user = require('./appApi/User.js')
 
-;
-(async () => {
+const mongoose = require('mongoose')
+const {connect,initSchemas} = require('./database/init.js')
+
+const bodyParser = require('koa-bodyparser')
+app.use(bodyParser());
+
+const cors = require('koa2-cors')
+app.use(cors())
+
+let router = new Router();
+router.use('/user',user.routes())
+app.use(router.routes())
+app.use(router.allowedMethods())
+
+
+;(async () => {
   await connect()
   initSchemas()
   const User = mongoose.model('User')
