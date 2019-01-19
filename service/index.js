@@ -4,6 +4,7 @@ const Koa = require('koa')
 const app = new Koa()
 
 let user = require('./appApi/user.js')
+let goods = require('./appApi/goods.js')
 
 const mongoose = require('mongoose')
 const {connect,initSchemas} = require('./database/init.js')
@@ -18,6 +19,7 @@ let router = new Router();
 router.use('/user',user.routes())
 app.use(router.routes())
 app.use(router.allowedMethods())
+router.use('/goods',goods.routes())
 
 
 ;(async () => {
