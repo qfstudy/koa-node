@@ -14,7 +14,7 @@
             placeholder="请输入用户名"
             required
             @click-icon="username = ''"
-            error-message
+            :error-message="usernameErrorMsg"
         />
         <van-field
             v-model="password"
@@ -22,7 +22,7 @@
             label="密码"
             placeholder="请输入密码"
             required
-            error-message
+            :error-message="passwordErrorMsg"
         />
         <div class="register-button">
             <van-button type="primary" @click="registerAction" :loading="openLoading"  size="large">马上注册</van-button>
@@ -49,11 +49,12 @@
                 this.$router.go(-1)   
             },
             axiosRegisterUser(){
+                this.openLoading=true
                 axios({
                     url: url.registerUser,
                     method: 'post',
                     data:{
-                        username:this.username,
+                        userName:this.username,
                         password:this.password 
                     }
                 })

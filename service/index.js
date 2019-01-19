@@ -3,7 +3,7 @@ const Router = require('koa-router')
 const Koa = require('koa')
 const app = new Koa()
 
-let user = require('./appApi/User.js')
+let user = require('./appApi/user.js')
 
 const mongoose = require('mongoose')
 const {connect,initSchemas} = require('./database/init.js')
@@ -23,19 +23,18 @@ app.use(router.allowedMethods())
 ;(async () => {
   await connect()
   initSchemas()
-  const User = mongoose.model('User')
-  let oneUser = new User({
-    userName: 'qfei2',
-    password: '123456'
-  })
-  oneUser.save().then(() => {
-    console.log('插入成功')
-  })
-  let users = await User.findOne({}).exec()
-  console.log('------------------')
-  console.log(users)
-  console.log('------------------')
-
+  // const User = mongoose.model('User')
+  // let oneUser = new User({
+  //   userName: 'qfei2',
+  //   password: '123456'
+  // })
+  // oneUser.save().then(() => {
+  //   console.log('插入成功')
+  // })
+  // let users = await User.findOne({}).exec()
+  // console.log('------------------')
+  // console.log(users)
+  // console.log('------------------')
 })()
 
 

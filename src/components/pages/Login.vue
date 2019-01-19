@@ -48,12 +48,12 @@
             goBack() {
                 this.$router.go(-1)   
             },
-            //*****注册用户的实行方法*****
+            //*****登录用户的实行方法*****
             LoginAction(){
                 this.checkForm() && this.axiosLoginUser()
             },
             //*******axios注册用户方法*******
-            axioLoginUser(){
+            axiosLoginUser(){
                     //先把按钮进行loading状态，防止重复提交
                     this.openLoading = true
                 axios({
@@ -65,8 +65,30 @@
                     }
                 })
                 .then(response => {
+                    
+                    console.log(response)
+                    if(response.data.code==200 && response.data.message){
+                        new Promise((resolve,reject)=>{
+                            localStorage.userInfo={userName:this.username}
+                            setTimeout(()=>{
+                                resolve()
+                            },500)
+                        }).then(()=>{
+                                Toast.success('登录成功')
+                                this.$router.push('/')
+                        }).catch(err=>{
+                                Toast.fail('登录状态保存失败')
+                                console.log(err)
+                        })
+                    }else{
+                        Toast.fail('登录失败')
+                        this.openLoading = false
+                    }
                 })
-                .catch((error) => {   
+                .catch((error) => {
+                    console.log(error)
+                    Toast.fail('登录失败')
+                    this.openLoading = false   
                 })
             },
             //**** 客户端验证
@@ -86,6 +108,12 @@
                 }
                 return isOk
             }       
+        },
+        created(){
+            if(localStorage.userInfo){
+                Toast.success('您已经登录')
+                this.$router.push('/')
+            }
         },
     }
 </script>
