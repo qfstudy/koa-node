@@ -16,22 +16,29 @@
         </van-col>
         <van-col span="18">
           <div class="tabCategorySub">
-            <van-tabs v-model="active">
+            <van-tabs v-model="active" @click="onClickCategorySub">
               <van-tab v-for="(item, index) in categorySub" :key="index" :title="item.MALL_SUB_NAME">
               </van-tab>
             </van-tabs>
           </div>
           <div id="list-div">
+            <van-pull-refresh v-model="isRefresh" @refresh="onRefresh">
               <van-list
                 v-model="loading"
                 :finished="finished"
                 @load="onLoad"
                 >
-                <div class="list-item" v-for="item in list" :key="item">
-                    {{item}}
+                <div class="list-item" v-for="(item,index) in goodList" :key="index">
+                  <div class="list-item-img">
+                    <img :src="item.IMAGE1" width="100%"/>
+                  </div>
+                  <div class="list-item-text">
+                      <div>{{item.NAME}}</div>
+                      <div class="">￥{{item.ORI_PRICE}}</div>
+                  </div>
                 </div>
               </van-list>
-              
+            </van-pull-refresh> 
           </div>
         </van-col>
       </van-row>
@@ -49,10 +56,12 @@ import { Toast } from 'vant'
         categoryIndex:0, 
         categorySub:[],
         active:0,
-        list:[],   //商品数据
         loading:false,   //上拉加载使用
         finished:false,  //上拉加载是否有数据了
         isRefresh:false, //下拉加载
+        page:1,          //商品列表的页数
+        goodList:[],     //商品信息
+        categorySubId:'', //商品子分类ID
       }
     },
     methods:{
@@ -62,7 +71,7 @@ import { Toast } from 'vant'
           method:'get',
         })
         .then(response=>{
-          console.log(response)
+          // console.log(response)
           if(response.data.code == 200 && response.data.message){
             this.category=response.data.message
             this.getCategorySubByCategoryId(this.category[0].ID)
@@ -82,10 +91,13 @@ import { Toast } from 'vant'
           data:{categoryId:categoryId}
         })
         .then(response=>{
-          console.log(response)
+          // console.log(response)
           if(response.data.code == 200 && response.data.message ){
             this.categorySub=response.data.message
             this.active = 0
+            this.categorySubId=this.categorySub[0].ID
+            this.onLoad()
+            console.log(this.categorySubId)
           }else{
             Toast('服务器错误2，数据取得失败')
           }  
@@ -94,26 +106,61 @@ import { Toast } from 'vant'
           console.log(error)
         }) 
       },
+      
+      getGoodList(){
+        axios({
+        url:url.getGoodsListByCategorySubID,
+        method:'post',
+        data:{
+          categorySubId:this.categorySubId,
+          page:this.page
+          }
+        })
+        .then(response=>{
+          console.log(response)
+          if(response.data.code == 200 && response.data.message.length){
+            this.page++
+            this.goodList=this.goodList.concat(response.data.message)
+          }else{
+            this.finished = true;
+          }
+          this.loading=false;
+        })
+        .catch(error=>{
+          console.log(error)
+        })
+      },
+
+      //点击子类获取商品信息
+      onClickCategorySub(index,title){
+        //console.log(this.categorySub)
+        this.categorySubId= this.categorySub[index].ID
+        console.log(this.categorySubId)
+        this.goodList=[]
+        this.finished = false
+        this.page=1
+        this.onLoad()
+      },
+
       clickCategory(index,categoryId){
         this.categoryIndex=index
+        this.page=1
+        this.finished = false
+        this.goodList=[]
         this.getCategorySubByCategoryId(categoryId)
       },
       //上拉加载
       onLoad(){
         setTimeout(()=>{
-          for(let i=0;i<10;i++){
-            this.list.push(this.list.length+1)
-          }
-          this.loading=false;
-          if (this.list.length >= 40) {
-            this.finished = true;
-          }
-        },500)
+          this.categorySubId=this.categorySubId?this.categorySubId:this.categorySub[0].ID
+          this.getGoodList()
+        },1000)
       },
       onRefresh(){
         setTimeout(() => {
           this.isRefresh = false;
-          this.list=[];
+          this.finished = false
+          this.goodList=[];
           this.onLoad()
         }, 500);
       }
@@ -143,13 +190,24 @@ import { Toast } from 'vant'
 .categoryActive{
   background-color: #fff;
 }
+
 .list-item{
-  text-align: center;
-  line-height: 80px;
-  border-bottom: 1px solid #f0f0f0;
-  background-color: #fff;
+    display: flex;
+    flex-direction: row;
+    font-size:0.8rem;
+    border-bottom: 1px solid #f0f0f0;
+    background-color: #fff;
+    padding:5px;
 }
 #list-div{
-  overflow: scroll;
+    overflow: scroll;
+}
+.list-item-img{
+    flex:8;
+}
+.list-item-text{
+    flex:16;
+    margin-top:10px;
+    margin-left:10px;
 }
 </style>
