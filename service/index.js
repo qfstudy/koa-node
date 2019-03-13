@@ -1,26 +1,22 @@
-const Router = require('koa-router')
-
 const Koa = require('koa')
+const Router = require('koa-router')
+const bodyParser = require('koa-bodyparser')
+const cors = require('koa2-cors')
+const mongoose = require('mongoose')
+
 const app = new Koa()
+let router = new Router();
+app.use(bodyParser());
+app.use(cors())
 
 let user = require('./appApi/user.js')
 let goods = require('./appApi/goods.js')
-
-const mongoose = require('mongoose')
 const {connect,initSchemas} = require('./database/init.js')
 
-const bodyParser = require('koa-bodyparser')
-app.use(bodyParser());
-
-const cors = require('koa2-cors')
-app.use(cors())
-
-let router = new Router();
 router.use('/user',user.routes())
+router.use('/goods',goods.routes())
 app.use(router.routes())
 app.use(router.allowedMethods())
-router.use('/goods',goods.routes())
-
 
 ;(async () => {
   await connect()
@@ -31,7 +27,7 @@ router.use('/goods',goods.routes())
   //   password: '123456'
   // })
   // oneUser.save().then(() => {
-  //   console.log('插入成功')
+  //   console.log('插 入成功')
   // })
   // let users = await User.findOne({}).exec()
   // console.log('------------------')

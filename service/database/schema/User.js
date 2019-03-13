@@ -13,7 +13,7 @@ const userSchema = new Schema({
 })
 userSchema.pre('save', function(next){
   //let user = this
-  console.log(this)
+//   console.log(this)
   bcrypt.genSalt(SALT_WORK_FACTOR,(err,salt)=>{
       if(err) return next(err)
       bcrypt.hash(this.password,salt, (err,hash)=>{

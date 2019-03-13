@@ -5,6 +5,11 @@ const glob = require('glob')
 const {resolve} = require('path')
 
 exports.initSchemas = () =>{
+  glob.sync(resolve(__dirname,'./schema','**/*.js')).forEach((value)=>{
+    let a=require(value)
+    console.log(a)
+    require(value)
+  }),
   glob.sync(resolve(__dirname,'./schema/','**/*.js')).forEach(require)
 }
 
